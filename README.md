@@ -4,21 +4,22 @@
 c_give("prefab",amount)    刷物品到包里
 c_spawn("prefab",amount)   刷物品到地上
 
-设置三维淘气值温度（0.90 = 90%.）
-c_sethea?lth(percent)
-c_setsanit?y(percent)
-c_sethunger(pe?rcent)
-c_setmoisture(pe?rcent)
+设置三维湿度温度（0.90 = 90%.）
+c_sethealth(percent)
+c_setsanity(percent)
+c_sethunger(percent)
+c_setmoisture(percent)
 c_settemperature(degrees)
 
-无敌
-c_godmode()                    c_godmode()
+无敌（三维温度锁定）/超级无敌（三维回满，温度25）
+c_godmode()
 c_supergodmode()
+注：使用该指令也可以复活。再次使用指令取消无敌。
 
-加速（1.2两倍速，20穿水）
+加速（1.2变快，10以上穿海面，3以上会卡）
 c_speedmult(multiplier)
 
-创造模式
+创造模式（开/关）
 ThePlayer.components.builder:GiveAllRecipes()
 
 改三围
@@ -26,35 +27,46 @@ ThePlayer.components.health:SetMaxHealth(value)
 ThePlayer.components.sanity:SetMax(value)
 ThePlayer.components.hunger:SetMax(value)
 
-停止饥饿
+停止饥饿（一般用不上）
 ThePlayer.components.hunger:Pause(true)
 
-设置攻击伤害倍数
+设置攻击伤害倍数（一般人为1,女武神1.25）
 ThePlayer.components.combat.damagemultiplier = value
 
 吴迪变身（1是变回来）
 ThePlayer.components.beaverness:SetPercent(.01)
 
-列出玩家编号用于控制
+列出玩家编号用于控制（目前测试只有附近玩家有效）
 c_listallplayers()
 
-将玩家传送到鼠标位置
+Get a certain player //未测试
+AllPlayers[number]
+
+聚集玩家（测试可用）
+c_gatherplayers() 
+
+c_listplayers() //未测试，显示资讯，内有玩家ID、生存天数还有一堆杂七杂八的
+
+
+将玩家传送到鼠标位置（一般 number = 1 是传送自己）
 c_move(AllPlayers[number])
+
+GetPlayer().Transform:SetPosition(0,0,0) //未测试，传送到坐标 0,0,0
 
 杀死某位玩家（编号/名字）
 AllPlayers[number]:PushEvent('death')
 UserToPlayer('PlayerA'):PushEvent('death')
 
-复活某位玩家
+复活某位玩家（存活无效果。可以一个一个试过来）
 AllPlayers[number]:PushEvent('respawnfromghost')
 
 传送到某玩家旁
 c_goto(AllPlayers[number])
 
-掉落某玩家的所有物品
+掉落某玩家的所有物品（Quick Drop 升级版）
 AllPlayers[number].components.inventory:DropEverything()
 
-更改某玩家角色
+更改某玩家角色（替代重生mod）
 c_despawn(AllPlayers[number])
 
 删除指针物品（主机/服务器）
@@ -62,27 +74,23 @@ ConsoleWorldEntityUnderMouse():Remove()
 c_select():Remove()
 c_select()c_sel():Remove()   需要按一下Ctrl键
 
-全地图
+全地图（两行一起复制粘贴）
 minimap = TheSim:FindFirstEntityWithTag("mini-map")
 TheWorld.minimap.MiniMap:ShowArea (0,0,0,10000)
 
 跳过一天
-?TheWorld:PushEvent("ms_nextcycle")
+TheWorld:PushEvent("ms_nextcycle")
 LongUpdate(480)
 
-跳过一个时期
+跳过一个时期（比如跳过晚上直接到白天）
 TheWorld:PushEvent("ms_nextphase")
 
-设置日夜构成
+设置日夜构成/设置季节构成/设置季节长度
 TheWorld:PushEvent("ms_setclocksegs", {day=14,dusk=1,night=1})
-
-设置季节构成
 TheWorld:PushEvent("ms_setseasonclocksegs", {summer={day=14,dusk=1,night=1}, winter={day=13,dusk=1,night=2}})
-
-设置季节长度
 TheWorld:PushEvent("ms_setseasonlength", {season="summer", length=15})
 
-开始某个季节
+开始某个季节（天数不变，直接变季节）
 TheWorld:PushEvent("ms_setseason", "summer")
 
 下雨/停雨
@@ -92,7 +100,7 @@ TheWorld:PushEvent("ms_forceprecipitation", false)
 指针处闪电
 TheWorld:PushEvent("ms_sendlightningstrike", ConsoleWorldPosition())
 
-指针处流星袭击
+指针处流星袭击（800次足以砸死龙蝇，但是还是用800倍攻击更方便）
 c_spawn("shadowmeteor", 1)
 
 踢/禁止某用户
@@ -100,14 +108,14 @@ TheNet:Kick(userid)
 TheNet:Ban(userid)
 TheNet:BanForTime(userid,time_in_seconds)
 
-地图重置
+重置全部世界
 c_reset()
 
-世界/区域重生
+重生所有从世界/运行命令的世界（服务器）
 c_regenerateworld()
 c_regenerateshard()
 
-立刻保存进度
+立刻保存进度（多用于即将下线、打死boss等）
 c_save()
 
 保存/不保存退出
@@ -119,15 +127,20 @@ c_rollback(count)
 允许/禁止新玩家加入
 TheNet:SetAllowIncomingConnections( true / false )
 
-公告（服务器）
+公告（提醒玩家用）
 c_announce("announcement")
 
-生成虫洞（按步骤）
+生成虫洞（按步骤输入，确保每一步都要在远程的情况下）
 worm1 = c_spawn("wormhole")
 worm2 = c_spawn("wormhole")
 worm1.components.teleporter.targetTeleporter = worm2
 worm2.components.teleporter.targetTeleporter = worm1
 
+——————————————————————————————————
+以下为比较旧的生成代码大全。如果你发现了错误或者缺失，请告诉我，
+我会在http://dontstarve.wikia.com/wiki/Console/Prefab_List中查询。
+如果你觉得代码很麻烦，就下载Too Many Items的mod吧，实质是一样的，还方便。
+——————————————————————————————————
 材料： 
 cutgrass（草）
 twigs（树枝）
